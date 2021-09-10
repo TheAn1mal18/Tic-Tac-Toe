@@ -9,38 +9,66 @@ def Clear_Screen():
 
 root = Tk()
 ##VARIABLES
-rows = IntVar()
-columns = IntVar()
+counter = 0
+size = IntVar()
+board_text = []
+turn = 0
 
-def Make_Game_Board(rows, columns):
-    for r in range(rows):
-        for c in range(columns):
-            Button(root, text="", width=10, height=5).grid(row=r, column=c)
+def press_Multiplayer(r, c, turn):
+    if (turn % 2) == 0:
+        board_text[r][c] = "X"
+    elif (turn % 2) != 0:
+        board_text[r][c] = "O"
+    print(turn)
+    turn += 1
+    print(turn)
+    Multiplayer()
+
+def Make_System_Board(size):
+    for r in range(size):
+        board_text.append([])
+        for c in range(size):
+            board_text[r].append("")
+
+def Make_Game_Board(size, turn):
+    for r in range(size):
+        for c in range(size):
+            Button(root, text=board_text[r][c], width=10, height=5, command=lambda row=r, column=c: press_Multiplayer(row, column, turn)).grid(row=r, column=c)
+
 
 def Singleplayer():
-    if rows.get() == 0 or columns.get() == 0:
-        return
     Clear_Screen()
-    Make_Game_Board(rows.get(), columns.get())
+
+    Make_Game_Board(size.get(), turn)
+
     root.mainloop()
 
 def Multiplayer():
-    if rows.get() == 0 or columns.get() == 0:
-        return
     Clear_Screen()
-    Make_Game_Board(rows.get(), columns.get())
+
+    Make_Game_Board(size.get(), turn)
+
     root.mainloop()
+
+def Singleplayer_Click():
+    if size.get() <= 0:
+        return
+    Make_System_Board(size.get())
+    Singleplayer()
+
+def Multiplayer_Click():
+    if size.get() <= 0:
+        return
+    Make_System_Board(size.get())
+    Multiplayer()
 
 def Game_Starter():
     root.title("Start")
-    Button(root, text="Singleplayer", width=20, height=10, command=Singleplayer).grid(row=0, column=0)
-    Button(root, text="Multiplayer", width=20, height=10, command=Multiplayer).grid(row=0, column=1)
-    Label(root, text="Rows on Board").grid(row=1, column=0)
-    Entry(root, textvariable=rows).grid(row=1, column=1)
-    Label(root, text="Columns on Board").grid(row=2, column=0)
-    Entry(root, textvariable=columns).grid(row=2, column=1)
+    Button(root, text="Singleplayer", width=20, height=10, command=Singleplayer_Click).grid(row=0, column=0)
+    Button(root, text="Multiplayer", width=20, height=10, command=Multiplayer_Click).grid(row=0, column=1)
+    Label(root, text="Enter the size of the board(1 - 9)(odd number)").grid(row=1, column=0)
+    Entry(root, textvariable=size).grid(row=1, column=1)
     Button(root, text="Exit", width=40, bg="red", height=5, command=root.destroy).grid(row=3, columnspan=2)
-
     root.mainloop()
 
 
