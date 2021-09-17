@@ -22,11 +22,15 @@ class Game():
         self.turn = 0
         self.size = IntVar()
         self.board_text = []
+        self.board_in_columns = []
+        self.board_in_diaganols = ([], [])
         self.color = 'white'
         self.gameboard_color = "black"
         self.gameboard_text_color = "white"
         self.text_color = 'black'
         self.Font = "lucida"
+        self.bt_color = "red"
+        self.bt_text_color = "black"
         self.All_Fonts = ["arial", "athelas", "ayutha", "baskerville", "batang", "courier", "lucida"]
         #8
         self.All_Colors = ["white", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
@@ -34,7 +38,7 @@ class Game():
 
     ##Internal Functions made here
     #Finished
-    def Done(self, test_font, test_background_color, test_gameboard_color):
+    def Done(self, test_font, test_background_color, test_gameboard_color, test_bt_color):
         dark_colors = ["black", "blue"]
         self.Font = test_font
         self.color = test_background_color
@@ -47,14 +51,20 @@ class Game():
             self.text_color = "white"
         else:
             self.text_color = "black"
+        self.bt_color = test_bt_color
+        if self.bt_color in dark_colors:
+            self.bt_text_color = "white"
+        else:
+            self.bt_text_color = "black"
 
         self.Game_Starter_Click()
     #Finished
     def Default(self):
-        self.color = 'white'
+        self.color = "white"
         self.gameboard_color = "black"
         self.gameboard_text_color = "white"
-        self.text_color = 'black'
+        self.text_color = "black"
+        self.bt_color = "black"
         self.Font = "lucida"
 
         self.Settings_Click()
@@ -65,10 +75,15 @@ class Game():
     #Finished
     def Make_System_Board(self):
         self.board_text = []
-        for r in range(self.size.get()):
+        for row in range(self.size.get()):
             self.board_text.append([])
-            for c in range(self.size.get()):
-                self.board_text[r].append(None)
+            self.board_in_columns.append([])
+            self.board_in_diaganols[0].append(None)
+            self.board_in_diaganols[1].append(None)
+            for number in range(self.size.get()):
+                self.board_text[row].append(None)
+                self.board_in_columns[row].append(None)
+        print(self.board_text, self.board_in_columns, self.board_in_diaganols)
     #Finihsed
     def Check_Winner(self):
         #Checks for row winner
@@ -82,6 +97,34 @@ class Game():
                 self.winner[1] = row[number]
             if self.winner[0] == True:
                 return
+        for list in range(self.size.get()):
+            """#Checks for row winners
+            for number in range(1, self.size.get()):
+                if (self.board_text[list][number] == self.board_text[list][number - 1]) & (self.board_text[list][number] != None):
+                    self.winner[0] = True
+                else:
+                    self.winner[0] = False
+                    break
+                self.winner[1] = self.board_text[list][number]
+            #Checks for column winners
+            for number in range(1, self.size.get()):
+                if (self.board_in_columns[list][number] == self.board_in_columns[list][number - 1]) & (self.board_in_columns != None):
+                    self.winner[0] = True
+                else:
+                    self.winner[0] = False
+                    break
+                self.winner[1] = self.board_in_columns[list][number]
+            #Checks for diaganol winners
+            for number in range(1, self.size.get()):
+                if (self.board_in_diaganols[list][number] == self.board_in_diaganols[list][number - 1]) & (self.board_in_diaganols[list][number] != None):
+                    self.winner[0] = True
+                else:
+                    self.winner[0] = False
+                    break
+                self.winner[1] = self.board_in_diaganols[list][number]
+            if self.winner[0] == True:
+                return"""
+
         #Created a new list of the columns only
         self.column_var = []
         for r in range(self.size.get()):
@@ -158,28 +201,33 @@ class Game():
             print(r, c)
             if self.board_text[r][c] == None:
                 self.board_text[r][c] = "O"
+                self.board_in_columns[c][r] = "O"
                 break
-        self.Singleplayer()
+        self.turn += 1
 
     ##Press functions for the moves in the game
     #Finished
     def Press_Multiplayer(self, r, c):
         if self.board_text[r][c] == None:
-            self.Make_Move(r, c)
+            self.Make_Move_Multiplayer(r, c)
         else:
             return
-    #Unfinished
+    #Finished
     def Press_Singleplayer(self, r, c):
         if self.board_text[r][c] == None:
-            self.Make_Move(r, c)
+            self.board_text[r][c] = "X"
+            self.board_in_columns[c][r] = "X"
+            self.turn += 1
         else:
             return
+
         self.Check_Winner()
 
         if self.winner[0] == True:
             self.Singleplayer_Winner_Screen()
-        self.AI_Move()
 
+        self.AI_Move()
+        self.Singleplayer()
 
     ##GUI functions made here
     #Unfinished
@@ -188,6 +236,7 @@ class Game():
         test_font = StringVar()
         test_background_color = StringVar()
         test_gameboard_color = StringVar()
+        test_bt_color = StringVar()
 
         self.root.title("Settings")
 
@@ -208,10 +257,16 @@ class Game():
         OptionMenu(self.root, test_gameboard_color, *self.All_Colors).grid(row=2, column=1)
         Button(self.root, text="Test", bg=self.color, fg=self.text_color, width=15).grid(row=2, column=2)
 
+        Label(self.root, text="Button\nColor", font=self.Font, bg=self.color,
+              fg=self.text_color, width=15).grid(row=3, column=0)
+        test_bt_color.set(self.bt_color)
+        OptionMenu(self.root, test_bt_color, *self.All_Colors).grid(row=3, column=1)
+        print(test_bt_color.get())
         Button(self.root, text="Done", font=self.Font, bg=self.color, fg=self.text_color,
                width=15, height=5, command=lambda: self.Done(test_font.get(),
                                                              test_background_color.get(),
-                                                             test_gameboard_color.get())).grid(row=5, column=0)
+                                                             test_gameboard_color.get(),
+                                                             test_bt_color.get())).grid(row=5, column=0)
         Button(self.root, text="Set Default", font=self.Font, bg=self.color, fg=self.text_color,
                width=15, height=5, command=self.Default).grid(row=5, column=1)
         Button(self.root, text="Back", font=self.Font, bg=self.color, fg=self.text_color,
@@ -219,29 +274,42 @@ class Game():
         self.root.mainloop()
     #Finished
     def Make_Game_Board_Multiplayer(self):
-        Button(self.root, text="Forfeit", command=self.root.destroy, width=6, bg='red').grid(row=0, column=0)
+        Button(self.root, text="Forfeit", command=self.root.destroy, bg=self.bt_color, fg=self.bt_text_color, width=6).grid(row=0, column=0)
         Button()
         for r in range(self.size.get()):
             for c in range(self.size.get()):
                 Button(self.root, text=self.board_text[r][c], width=6, height=3,
                        bg=self.gameboard_color, fg=self.gameboard_text_color,
                        command=lambda row=r, column=c: self.Press_Multiplayer(row, column)).grid(row=r + 1, column=c)
-    #Finished
+
     def Make_Game_Board_Singleplayer(self):
-        Button(self.root, text="Forfeit", command=self.root.destroy, width=6, bg='red').grid(row=0, column=0)
+        Button(self.root, text="Forfeit", command=self.root.destroy, bg=self.bt_color, fg=self.bt_text_color,
+               width=6).grid(row=0, column=0)
         Button()
         for r in range(self.size.get()):
             for c in range(self.size.get()):
-                Button(self.root, text=self.board_text[r][c], width=6, height=3, bg=self.gameboard_color,
+                Button(self.root, text=self.board_text[r][c], width=6, height=3,
+                       bg=self.gameboard_color, fg=self.gameboard_text_color,
                        command=lambda row=r, column=c: self.Press_Singleplayer(row, column)).grid(row=r + 1, column=c)
+
     #Finished
-    def Make_Move(self, r, c):
+    def Make_Move_Multiplayer(self, r, c):
         if (self.turn % 2) == 0:
             self.board_text[r][c] = "X"
+            self.board_in_columns[c][r] = "X"
         elif (self.turn % 2) != 0:
             self.board_text[r][c] = "O"
+            self.board_in_columns = "O"
         self.turn += 1
         self.Multiplayer()
+    #Finished
+    def Make_Move_Singleplayer(self, r, c):
+        if (self.turn % 2) == 0:
+            self.board_text[r][c] = "X"
+        elif (self.turn % 2) != 0 and self.winner[0] == False:
+            self.AI_Move()
+        self.turn += 1
+        self.Singleplayer()
     #Finished
     def Multiplayer_Winner_Screen(self):
         self.Multiplayer_Find_Winner()
@@ -252,21 +320,21 @@ class Game():
         Label(self.root, text=("Player 2 wins: " + str(self.pl2_wins)), width=15, height=5, bg=self.color
               , fg=self.text_color).grid(row=0, column=1)
         Label(self.root, text=self.ending_text, width=30, height=2, bg=self.color, fg=self.text_color).grid(row=1, column=0, columnspan=2)
-        Button(self.root, text="Restart", command=self.Multiplayer_Restart, bg='red', fg="black", height=5, width=15).grid(row=2, column=0)
-        Button(self.root, text="Home", command=self.Game_Starter_Click, bg='red', fg="black", height=5, width=15).grid(row=2, column=1)
+        Button(self.root, text="Restart", command=self.Multiplayer_Restart, bg=self.bt_color, fg=self.bt_text_color, height=5, width=15).grid(row=2, column=0)
+        Button(self.root, text="Home", command=self.Game_Starter_Click, bg=self.bt_color, fg=self.bt_text_color, height=5, width=15).grid(row=2, column=1)
         self.root.mainloop()
     #Unfinished
     def Singleplayer_Winner_Screen(self):
         self.Singleplayer_Find_Winner()
         self.Clear_Screen()
         print(self.ending_text)
-        Label(self.root, text=("Player 1 wins: " + str(self.pl1_wins)), width=15, bg='black'
-              , fg='white').grid(row=0, column=0)
-        Label(self.root, text=("AI wins: " + str(self.AI_wins)), width=15, bg='black'
-              , fg='white').grid(row=0, column=1)
-        Label(self.root, text=self.ending_text, width=30, bg='black', fg='white').grid(row=1, column=0, columnspan=2)
-        Button(self.root, text="Restart", command=self.Singleplayer_Restart, bg='yellow', height=5, width=15).grid(row=2, column=0)
-        Button(self.root, text="Exit", command=self.Game_Starter_Click, bg='red', height=5, width=15).grid(row=2, column=1)
+        Label(self.root, text=("Player 1 wins: " + str(self.pl1_wins)), width=15, bg=self.color
+              , fg=self.text_color).grid(row=0, column=0)
+        Label(self.root, text=("AI wins: " + str(self.AI_wins)), width=15, bg=self.color
+              , fg=self.text_color).grid(row=0, column=1)
+        Label(self.root, text=self.ending_text, width=30, bg=self.color, fg=self.text_color).grid(row=1, column=0, columnspan=2)
+        Button(self.root, text="Restart", command=self.Singleplayer_Restart, bg=self.bt_color, fg=self.bt_text_color, height=5, width=15).grid(row=2, column=0)
+        Button(self.root, text="Exit", command=self.Game_Starter_Click, bg=self.bt_color, fg=self.bt_text_color, height=5, width=15).grid(row=2, column=1)
         self.root.mainloop()
 
     ##Game modes made here
@@ -323,6 +391,12 @@ class Game():
     #Finished
     def Game_Starter_Click(self):
         self.Clear_Screen()
+        self.ending_text = ""
+        self.winner = [False, None]
+        self.board_text = []
+        self.board_in_columns = []
+        self.board_in_diaganols = ([], [])
+        self.turn = 0
         self.Game_Starter()
     #Finished
     def Multiplayer_Restart(self):
@@ -331,6 +405,8 @@ class Game():
         self.winner = [False, None]
         self.turn = 0
         self.board_text = []
+        self.board_in_columns = []
+        self.board_in_diaganols = ([], [])
         self.Make_System_Board()
         self.Multiplayer()
     #Finished
@@ -340,6 +416,8 @@ class Game():
         self.winner = [False, None]
         self.turn = 0
         self.board_text = []
+        self.board_in_columns = []
+        self.board_in_diaganols = ([], [])
         self.Make_System_Board()
         self.Singleplayer()
 
@@ -348,12 +426,12 @@ class Game():
     def Game_Starter(self):
         self.root.title("Start")
         self.root.configure(bg=self.color)
-        Button(self.root, text="Singleplayer", bg="yellow", font=self.Font, width=20, height=10, command=self.Singleplayer_Click).grid(row=0, column=0)
-        Button(self.root, text="Multiplayer", bg="yellow", font=self.Font, width=20, height=10, command=self.Multiplayer_Click).grid(row=0, column=1)
+        Button(self.root, text="Singleplayer", bg=self.bt_color, fg=self.bt_text_color, font=self.Font, width=20, height=10, command=self.Singleplayer_Click).grid(row=0, column=0)
+        Button(self.root, text="Multiplayer", bg=self.bt_color, fg=self.bt_text_color, font=self.Font, width=20, height=10, command=self.Multiplayer_Click).grid(row=0, column=1)
         Label(self.root, text="Enter the size of the board\n(1 - 9)(odd number)", bg=self.color, fg=self.text_color).grid(row=1, column=0)
         Entry(self.root, textvariable=self.size).grid(row=1, column=1)
-        Button(self.root, text="Exit", font=self.Font, width=20, bg="red", height=5, command=self.root.destroy).grid(row=3, column=0)
-        Button(self.root, text="Settings", font=self.Font, width=20, bg="red", height=5, command=self.Settings_Click).grid(row=3, column=1)
+        Button(self.root, text="Exit", font=self.Font, width=20, bg=self.bt_color, fg=self.bt_text_color, height=5, command=self.root.destroy).grid(row=3, column=0)
+        Button(self.root, text="Settings", font=self.Font, width=20, bg=self.bt_color, fg=self.bt_text_color, height=5, command=self.Settings_Click).grid(row=3, column=1)
         self.root.mainloop()
 
 
